@@ -27,7 +27,7 @@ Concepts: syntax compared to JS, type hints, comprehensions, classes/`@dataclass
 Exercises (in `phase0/`):
 - [x] `basics.py` — `summarize(todos) -> str` with f-string; list comprehension (incomplete titles); dict comprehension `{id: title}`; `.get()` vs `[]` on missing key
 - [x] `gotchas.py` — mutable default arg `def add_item(item, items=[])` bug + fix; `is` vs `==`; falsy values
-- [ ] `models.py` — `Todo` dataclass (`id`, `title`, `completed=False`, `due: date | None = None`), `mark_done()`, a `@log_call` decorator
+- [x] `models.py` — `Todo` dataclass (`id`, `title`, `completed=False`, `due: date | None = None`), `mark_done()`, a `@log_call` decorator
 - [ ] `todo_cli.py` — **deliverable**: CLI (`add` / `list` / `done` / `delete`) saving to `todos.json`; argparse subcommands, json, pathlib, `with open`, custom `TodoNotFoundError`; split into `create_todo` / `list_todos` / `update_todo` / `delete_todo`
 - [ ] (optional) `tests/test_todo_cli.py` — 3 pytest tests for the CRUD functions
 
@@ -83,3 +83,4 @@ Async (`AsyncSession` + asyncpg), Docker for the app, GitHub Actions CI with a P
 - 2026-10-19 — Plan created; project set up with `uv init` (Python 3.13, pytest, ruff). Starting Phase 0.
 - 2026-10-23 — Phase 0: `basics.py` done (f-strings, list/dict comprehensions, generator expression, `.get()` vs `[]`, `KeyError`). Repo pushed to GitHub.
 - 2026-10-23 — Phase 0: `gotchas.py` done (mutable default args, `is` vs `==` + small-int cache, falsy values, `is None` vs `not x`). Code written by Claude on request.
+- 2026-10-23 — Phase 0: `models.py` done (`@dataclass`, `self`, `@log_call` decorator with `*args/**kwargs` + `functools.wraps`, `field(default_factory=list)`). Code written by Claude on request.
