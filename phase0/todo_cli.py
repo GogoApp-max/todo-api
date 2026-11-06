@@ -1,4 +1,6 @@
+import argparse
 import json
+import sys
 from dataclasses import asdict
 from datetime import date
 from pathlib import Path
@@ -7,6 +9,10 @@ from models import Todo
 
 # Always next to this script, no matter which directory you run it from
 TODOS_FILE = Path(__file__).parent / "todos.json"
+
+
+class TodoNotFoundError(Exception):
+    """Raised when a todo with the specified ID is not found."""
 
 
 def todo_to_dict(todo: Todo) -> dict:
@@ -38,10 +44,10 @@ def save_todos(todos: list[Todo]) -> None:
         json.dump(data, f, indent=2)
 
 
-def create_todo(title: str, completed: bool = False) -> Todo:
+def create_todo(title: str, completed: bool = False, due: date | None = None) -> Todo:
     todos = load_todos()
     new_id = max((todo.id for todo in todos), default=0) + 1
-    new_todo = Todo(id=new_id, title=title, completed=completed)
+    new_todo = Todo(id=new_id, title=title, completed=completed, due=due)
     todos.append(new_todo)
     save_todos(todos)
     return new_todo
@@ -53,7 +59,7 @@ def list_todos() -> list[Todo]:
 
 def update_todo(
     todo_id: int, title: str | None = None, completed: bool | None = None
-) -> Todo | None:
+) -> Todo:
     todos = load_todos()
     for todo in todos:
         if todo.id == todo_id:
@@ -63,27 +69,66 @@ def update_todo(
                 todo.completed = completed
             save_todos(todos)
             return todo
-    return None
+    raise TodoNotFoundError(f"Todo with ID {todo_id} not found.")
 
 
-def delete_todo(todo_id: int) -> bool:
+def delete_todo(todo_id: int) -> None:
     todos = load_todos()
     new_todos = [todo for todo in todos if todo.id != todo_id]
     if len(new_todos) == len(todos):
-        return False  # No todo was deleted
+        raise TodoNotFoundError(f"Todo with ID {todo_id} not found.")
     save_todos(new_todos)
-    return True
+
+
+def format_todo(todo: Todo) -> str:
+    check = "x" if todo.completed else " "
+    due = f"  (due {todo.due.isoformat()})" if todo.due is not None else ""
+    return f"[{check}] {todo.id}  {todo.title}{due}"
+
+
+def main() -> None:
+    # 1. Define the commands first...
+    parser = argparse.ArgumentParser(description="Todo CLI")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    add_parser = subparsers.add_parser("add", help="Add a todo")
+    add_parser.add_argument("title", help="Title of the todo")
+    add_parser.add_argument(
+        "--due", type=date.fromisoformat, help="Due date (YYYY-MM-DD)"
+    )
+
+    subparsers.add_parser("list", help="List all todos")
+
+    done_parser = subparsers.add_parser("done", help="Mark a todo as done")
+    done_parser.add_argument("id", type=int, help="ID of the todo")
+
+    delete_parser = subparsers.add_parser("delete", help="Delete a todo")
+    delete_parser.add_argument("id", type=int, help="ID of the todo")
+
+    # 2. ...then parse the command line
+    args = parser.parse_args()
+
+    # 3. Dispatch to the CRUD functions
+    try:
+        if args.command == "add":
+            todo = create_todo(args.title, due=args.due)
+            print(f"Added {todo.id}: {todo.title}")
+        elif args.command == "list":
+            todos = list_todos()
+            if not todos:
+                print("No todos yet.")
+            for todo in todos:
+                print(format_todo(todo))
+        elif args.command == "done":
+            todo = update_todo(args.id, completed=True)
+            print(f"Done {todo.id}: {todo.title}")
+        elif args.command == "delete":
+            delete_todo(args.id)
+            print(f"Deleted {args.id}")
+    except TodoNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)  # errors go to stderr, like console.error
+        sys.exit(1)  # non-zero exit code = failure, like process.exit(1)
 
 
 if __name__ == "__main__":
-    # Step 1 check: a date survives a save -> load round trip
-    save_todos(
-        [
-            Todo(id=1, title="Buy milk", due=date(2026, 11, 5)),
-            Todo(id=2, title="Walk dog"),
-        ]
-    )
-    todos = load_todos()
-    print(todos)
-    print(type(todos[0].due))  # <class 'datetime.date'>
-    print(type(todos[1].due))  # <class 'NoneType'>
+    main()
