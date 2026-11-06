@@ -38,11 +38,11 @@ Path/query params, request bodies, Pydantic schemas (`TodoCreate` / `TodoUpdate`
 **Deliverable:** CRUD `/todos` stored in a dict, plus `?completed=` filter and `limit`/`offset` pagination.
 Done when: you can explain PUT vs PATCH, and why the API returns 422.
 
-## Phase 2 — pytest (then keep testing in every phase) ⬅️ CURRENT
+## Phase 2 — pytest (then keep testing in every phase) ✅
 Discovery, `assert`, `-k`, fixtures (scopes, `yield`), `parametrize`, `TestClient`, `pytest-cov`.
 **Deliverable:** tests for every Phase 1 endpoint, covering success and failure paths. Try TDD for at least one feature per phase.
 
-## Phase 3 — PostgreSQL + raw SQL
+## Phase 3 — PostgreSQL + raw SQL ⬅️ CURRENT
 Postgres via docker compose, psql/GUI, hand-written CRUD SQL, constraints, `timestamptz`, foreign keys, JOINs, indexes and `EXPLAIN`, transactions.
 **Deliverable:** `schema.sql` (users, lists, todos, tags, todo_tags) plus ~10 hand-written queries.
 Done when: you can query "all incomplete todos in list X with tag Y".
@@ -87,3 +87,5 @@ Async (`AsyncSession` + asyncpg), Docker for the app, GitHub Actions CI with a P
 - 2026-11-06 — Phase 0: `todo_cli.py` deliverable done (JSON storage with date round trip, CRUD + `TodoNotFoundError`, argparse subcommands, stderr + exit codes). Storage/CRUD written by the user with fixes; `main()` fixed by Claude on request.
 - 2026-11-06 — Phase 0 complete (all three "done when" questions covered; optional CLI tests skipped in favor of Phase 2). Starting Phase 1.
 - 2026-11-06 — Phase 1 complete: `app/main.py` CRUD `/todos` on a dict store with `TodoCreate`/`TodoRead`/`TodoReplace`/`TodoUpdate`, 201/204/404/422, PATCH via `model_dump(exclude_unset=True)` + `model_copy`, `?completed=` filter, `limit`/`offset` pagination. PUT vs PATCH and 422 covered (`notes/python-cheatsheet.md`). Starting Phase 2.
+- 2026-11-06 — Phase 2: 39 tests for every endpoint (success + failure paths) with fixtures (`conftest.py`, autouse reset, `make_todo` factory) and `parametrize`; 100% coverage via pytest-cov; verified by injecting bugs. TDD exercise still to do.
+- 2026-11-06 — Phase 2 complete (TDD exercise skipped; idea for later: reject empty/whitespace titles). Starting Phase 3.

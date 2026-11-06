@@ -11,5 +11,10 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]  # only look for tests here (not in phase0/)
+pythonpath = ["."]     # project root on the import path, so `from app.main import app` works

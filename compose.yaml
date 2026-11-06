@@ -1,0 +1,21 @@
+# Local development database only. Start: `docker compose up -d`, stop: `docker compose down`.
+services:
+  db:
+    image: postgres:18
+    environment:
+      # Dev-only credentials. Real secrets never go in a committed file (Phase 4: .env).
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: todo
+      POSTGRES_DB: todo
+    ports:
+      - "5432:5432" # host:container, so tools on your Mac can reach localhost:5432
+    volumes:
+      - pgdata:/var/lib/postgresql # keeps the data when the container is removed
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todo -d todo"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:
